@@ -18,6 +18,7 @@ Note that this repo uses my new favourite package `renv` for reproducible packag
 
 You'll need to liase with Elspeth directly for clear expectations on what she would like you to do, but I imagine some of the preliminary steps might be:
 
+* Clone this repository (New Project >> Version control >> enter this url "https://github.com/church-army/colab-surveys")
 * Create `02_cleaning-survey-data`
 	* Probably more like `02_A_cleaning-digital-practises-data`, and so on for each survey. I'll leave it to your judgement.
 * Tabularise the data from the text file in `additional-data` (do this in Excel and ideally save as a CSV?)
