@@ -1,0 +1,56 @@
+---
+title: "01_read-survey-data"
+author: "Dave"
+format: html
+editor: visual
+---
+
+## Libraries
+
+```{r libraries}
+library(conflicted)
+
+library(fs)
+library(here)
+
+library(monkeyreadr)
+library(stringr)
+library(purrr)
+```
+
+### Read survey data
+
+### Get named paths to each file
+
+```{r read_survey_data}
+survey_paths <- 
+  dir_ls(here("survey-responses"), type = "file", regexp = ".*\\.csv$")
+
+survey_names <- 
+  survey_paths |> 
+  path_file() |> 
+  path_ext_remove() |>
+  str_remove("colab-survey_")
+  
+names(survey_paths) <- survey_names
+
+survey_paths
+```
+
+### `read_sm()` on each path
+
+```{r read_sm}
+surveys <- map(survey_paths, read_sm)
+```
+
+## Save cleaned survey data
+
+```{r save}
+imap(surveys,
+     \(survey, name){
+       
+       cute_name <- str_c("tidy-responses_", name, ".RDS")
+       
+       saveRDS(survey, here("survey-responses", cute_name))
+     })
+```
