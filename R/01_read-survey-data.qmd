@@ -16,6 +16,7 @@ library(here)
 library(monkeyreadr)
 library(stringr)
 library(purrr)
+library(dplyr)
 ```
 
 ### Read survey data
@@ -41,6 +42,16 @@ survey_paths
 
 ```{r read_sm}
 surveys <- map(survey_paths, read_sm)
+
+walk(surveys, glimpse)
+```
+
+## Anonymize
+
+By removing emails
+
+```{r anonymise}
+surveys <- map(surveys, \(x) select(x, -email_address_2))
 ```
 
 ## Save cleaned survey data
