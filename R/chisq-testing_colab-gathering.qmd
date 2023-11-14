@@ -1,0 +1,83 @@
+---
+title: "Co.Lab gatherings"
+format: html
+editor: visual
+---
+
+```{r library}
+library(dplyr)
+library(tibble)
+library(here)
+```
+
+```{r read_data}
+colab_gathering <- readRDS(
+  here("survey-responses", "tidy-responses_colab-gatherings.RDS"))
+```
+
+
+## Genders
+
+```{r count_genders}
+count_column <- function(x, col, check_in = NULL){
+  
+  counts <- 
+    x |>
+    count({{col}}) 
+  
+  if(!is.null(check_in)){
+    counts <- filter(counts, {{col}} %in% check_in)
+  }
+  
+  genders <- pull(counts, {{col}})
+  numbers <- pull(counts, n)
+  
+  names(numbers) <- genders
+  
+  alphabetical_order <- order(genders)
+  
+  numbers[alphabetical_order]
+}
+
+count_column(colab_gathering, what_is_your_gender, check_in = c("Female", "Male"))
+```
+
+```{r chi_squared_gender}
+
+staff_genders <- c(female = 39, male = 37)
+colab_gathering_genders <- count_column(colab_gathering, what_is_your_gender, check_in = c("Female", "Male"))
+
+genders <- rbind(staff_genders, colab_gathering_genders)
+
+result <- chisq.test(genders)
+
+result
+```
+
+
+## Ages
+
+```{r count_ages}
+count_column(colab_gathering, col = what_is_your_age, check_in = c("16-24", "25-34", "35-44", "45-54", "55-64", "65+"))
+```
+
+```{r chi_squared_age}
+
+staff_ages <- c("16-24" = 3,
+                "25-34" = 13,
+                "35-44" = 19,
+                "45-54" = 15,
+                "55-64" = 25,
+                "65+" = 1)
+
+colab_gathering_ages <- count_column(colab_gathering, what_is_your_age)
+
+ages <- rbind(staff_ages, colab_gathering_ages)
+
+result <- chisq.test(ages)
+
+result
+```
+
+
+

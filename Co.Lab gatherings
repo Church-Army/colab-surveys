@@ -8,71 +8,49 @@ editor: visual
 
 library(dplyr)
 library(tibble)
+
+library(here)
 ```
 
+```{r read_data}
+colab_gatherings <- readRDS(
+  here("survey-responses", "tidy-responses_colab-gatherings.RDS"))
+```
 
+```{r count_genders}
+count_gender <- function(x, gender = what_is_your_gender){
+  counts <-
+    x |>
+    count({{gender}}) |>
+    filter({{gender}} %in% c("Female", "Male"))
+
+  genders <- pull(counts, {{gender}})
+  numbers <- pull(counts, n)
+
+  names(numbers) <- genders
+
+  alphabetical_order <- order(genders)
+
+  numbers[alphabetical_order]
+}
+
+count_gender(colab_gatherings)
+```
 
 ```{r Daves code}
+# survey_genders      24     26
 
-set.seed(123)
+staff_genders <- c(female = 39, male = 37)
+colab_gatherings_genders <- count_gender(colab_gatherings)
 
-the_real_Co_Lab <-
-  tibble(
-    response_id = 1:52,
-    gender =
-      sample(
-        c("male", "female"),
-        size = 52,
-        replace = TRUE,
-        prob = c(0.2, 0.8)))
+genders <- rbind(staff_genders, _genders)
 
-staff_genders <- c(male = 80, female = 75)
+result <- chisq.test(genders)
 
-## responses to the survey will look like this
-head(the_real_Co_Lab)
-#> # A tibble: 6 × 2
-#>   response_id gender
-#>         <int> <chr> 
-#> 1           1 female
-#> 2           2 female
-#> 3           3 female
-#> 4           4 male  
-#> 5           5 male  
-#> 6           6 female
-
-## whereas our data about all staff will look like this:
-staff_genders
-#>   male female 
-#>     80     75
-
-## In order to analyse these w/ a `chisq.test()`, we need to format them
-## both in the same way. More specifically, we need counts of gender from 
-## the survey responses, which we will combine into a contingency table.
-
-## NB note the use of arrange() and order() here to make sure that our counts
-## are aligned on the basis of alphabetical order. Otherwise we might end up
-## comparing men to women.
-
-survey_genders <- 
-  count(the_real_Co_Lab, gender) |> 
-  arrange(gender) |>      
-  mutate(n = setNames(n, gender)) |> 
-  pull(n)
-
-staff_genders <- staff_genders[order(names(staff_genders))]
-     
-     
-                Female   Male   'prefer not to say'
-staff_genders       39     37                    0
-survey_genders      24     26                    2
-     
-
-contingency <- rbind(survey_genders, staff_genders)
-
-chisq.test(x = contingency)
-#> 
+result
+#>
 #>  Pearson's Chi-squared test with Yates' continuity correction
-#> 
+#>
 #> data:  contingency
 #> X-squared = 12.257, df = 1, p-value = 0.0004635
 
